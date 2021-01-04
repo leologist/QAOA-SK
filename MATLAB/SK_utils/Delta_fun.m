@@ -2,7 +2,7 @@ function Delta = Delta_fun(aConfigs, bConfigs, gammas)
 %Delta_fun a "vectorized" function to calculate \Delta_{ab} for a list of a
 %       and b bit-configurations, and specified gammas
 %
-%   \Delta_{ab} = (Phi^2_{a star * b} - Phi^2_{a * b} ) / 2
+%   \Delta_{a,b} = (Phi^2_{a star * b} - Phi^2_{a * b} ) / 2
 %
 %   Usage:
 %     Delta = Delta_fun(aConfigs, bConfigs, gammas)

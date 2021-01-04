@@ -16,7 +16,7 @@ global p aList aHashes
 global uniqueBarInds_sorted this_aHashes this_aBarHashes
 global quickPrimer MrPlus MrMinus
 
-VERBOSE = false;
+VERBOSE = true;
 
 start_time = tic;
 
@@ -25,10 +25,10 @@ start_time = tic;
 Qs = Q_fun(aList, betas);
 Fs = F_fun(aList, gammas, betas);
 
-Xs = Qs.*Fs; % X(u) = Q(u)*F(u)
+Xs = Qs.*Fs; % X_u = Q_u*F_u
 
-% Make a sorted Ys vector so that
-%   Ys_by_hash(hash+1) = Y_fun(hash2config(hash), gammas, betas)
+% Make a sorted Xs vector so that
+%   Xs_by_hash(hash+1) = X_{hash2config(hash)}
 
 temp = sortrows([aHashes, Xs]); % sort by first column
 Xs_by_hash = temp(:,2);
@@ -91,15 +91,15 @@ obj = -1i*obj;
 
 if VERBOSE
     fprintf('*** SK_QAOA_p_objfun done after %0.6f sec\n', toc(start_time));
+%     fprintf('obj=%0.16f\n', obj) 
+%     fprintf('gammas = [');
+%     fprintf('%0.16f, ', gammas);
+%     fprintf('\b\b];\n');
+%     fprintf('betas = [');
+%     fprintf('%0.16f, ', betas);
+%     fprintf('\b\b];\n');
 end
 
-% fprintf('obj=%0.16f\n', obj) 
-% fprintf('gammas = [');
-% fprintf('%0.16f, ', gammas);
-% fprintf('\b\b];\n');
-% fprintf('betas = [');
-% fprintf('%0.16f, ', betas);
-% fprintf('\b\b];\n');
 
 if imag(obj) < 1e-10
     obj = real(obj);

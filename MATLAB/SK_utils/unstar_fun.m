@@ -1,4 +1,7 @@
 function aprime = unstar_fun(a)
+%unstar_fun is the inverse of star_fun
+%       in an earlier version `unstar' operation = `prime' operation
+%
     p = size(a,2)/2;
     aprime = a;
     for r = 1:p-1

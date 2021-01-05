@@ -1,7 +1,7 @@
 function Q = Q_fun(a, betas)
-%qQ_fun computes the product of Q(a) for configuration a at given betas
+%Q_fun computes the product of Q(a) for configuration a at given betas
 %
-%   input a can be L*2p matrix, wheree each row is a configuration
+%   input a can be L*2p matrix, where each row is a configuration
 %
 	global p
     Q = (1i).^sigma_fun(a);

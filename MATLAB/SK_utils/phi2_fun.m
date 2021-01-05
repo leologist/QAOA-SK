@@ -1,5 +1,5 @@
 function phi2 = phi2_fun(c, gammas)
-%phi2_fun computes phi
+%phi2_fun computes Phi_{c}^2 for configuration c
 %
     global p
     phi2 = 0;

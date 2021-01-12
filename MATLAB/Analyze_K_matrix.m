@@ -4,7 +4,7 @@ end
 
 global p
 
-p = 4;
+p = 3;
 
 gammas = rand(1,p);
 betas = rand(1,p);
@@ -48,6 +48,10 @@ Dmat = Delta_fun(aList, aList, gammas);
 Kmat = Xs.*Dmat;
 toc;
 
+% reorder the matrices so the increasing indices goes through A_1, A_2 ... A_{p+1}
+Dmat = rot90(Dmat, 2);
+Kmat = rot90(Kmat, 2);
+
 Drank = rank(Dmat);
 
 fprintf('p=%d --- rank(D) = rank(K) = %d\n', p, Drank);
@@ -88,14 +92,10 @@ for ind = 1:Drank
     subplot(p-1, p-1, ind)
     plot(x, vec, '.','markersize',10);
     hold on
-    plot([1;1]* (1:2^p), [-1,1],'--r','LineWidth',1.5);
+    plot([1;1]* (1:2^p), [-1,1]*2,'--r','LineWidth',1);
     hold off, grid on
     xlabel('index / 2^p ')
     title(sprintf('singular vector # %d', ind));
-    set(gca,'xlim',[0,2^p]);
+    set(gca,'xlim',[0,2^p],'ylim',[-1,1]*1.4);
 end
-% hold off
-
-
-
 

@@ -1,11 +1,11 @@
-%% assumes ../SK_utils 
+%% assumes ,./ and ../SK_utils are in MATLAB path
 
 global p aList
 
 p = 4;
 
 
-load('SK_opts.mat');
+load('../SK_opts.mat');
 param0 = SK_inf(p).param;
 gammas = param0(1:p);
 betas = param0(p+1:end);
@@ -60,7 +60,7 @@ for ind = 1:p
     mysize = 2*mysize;
 end
 
-fprintf('Done making Ws after %0.6f s\n', toc);
+fprintf('Ws are made after %0.6f s\n', toc);
 
 
 %% get the essential Low-Rank Basis vectors
@@ -184,7 +184,7 @@ temp = myW(2*Drank + (1:2*p));
 approx_val = 2i*gammas*(temp(1:p).*temp(p+1:end));
 
 fprintf('Low-Rank Basis evaluation time = %0.6f s\n', toc);
-fprintf('  Guessed = %0.6f %+0.6fj\n', real(approx_val), imag(approx_val));
+fprintf('  Result  = %0.6f %+0.6fj\n', real(approx_val), imag(approx_val));
 fprintf(' True val = %0.6f\n',  obj);
 fprintf('     Diff = %0.2e\n',   abs(approx_val - obj));
 

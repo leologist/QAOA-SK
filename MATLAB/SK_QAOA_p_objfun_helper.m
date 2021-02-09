@@ -1,6 +1,5 @@
 if ~exist('Delta_fun', 'file')
-    addpath([pwd, filesep, 'SK_utils'])
-    addpath(pwd);
+    initialize;
 end
 
 global p abar_ops aList aHashes partitions bigset

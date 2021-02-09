@@ -1,13 +1,11 @@
-if ~exist('Delta_fun', 'file')
-    addpath([pwd, filesep, 'SK_utils'])
-end
-
 global p
 
-p = 3;
+p = 4;
 
 gammas = rand(1,p);
 betas = rand(1,p);
+% gammas = ((p:-1:1)/p).^1;
+% betas = ((1:p)/p).^1;
 
 %% setting up
 
@@ -48,7 +46,7 @@ Dmat = Delta_fun(aList, aList, gammas);
 Kmat = Xs.*Dmat;
 toc;
 
-% reorder the matrices so the increasing indices goes through A_1, A_2 ... A_{p+1}
+% reorder the matrices so the increasing indices go through A_1, A_2 ... A_{p+1}
 Dmat = rot90(Dmat, 2);
 Kmat = rot90(Kmat, 2);
 
@@ -59,6 +57,12 @@ fprintf('p=%d --- rank(D) = rank(K) = %d\n', p, Drank);
 %% singular decompositions
 [Ud, Sd, Vd] = svd(Dmat);
 Sd = diag(Sd);
+Ud2 = Ud./max(abs(Ud),[],1);
+Vd2 = Vd./max(abs(Vd),[],1);
+Ud2 = round(Ud2(:, 1:Drank));
+Vd2 = round(Vd2(:, 1:Drank));
+
+Sd2 = diag((Ud2'*Ud2) \ (Ud2'*Dmat*Vd2)/(Vd2'*Vd2));
 
 [Uk, Sk, Vk] = svd(Kmat);
 Sk = diag(Sk);
@@ -66,18 +70,28 @@ Sk = diag(Sk);
 %% plot singular values
 set(0,'DefaultAxesFontSize', 14);
 
+gg = triu(gammas.'*gammas,2);
+gg = gg(gg~=0);
+gg = sort([gg', gg', gammas(1:p-1).*gammas(2:p)], 'descend');
+
 figure(11);
 subplot(2,1,1);
-plot(Sd,'ob')
-grid on
-ylabel('singular values of \Delta')
+plot(sort(Sd2/8,'descend'),'xr')
+hold on
+% plot(Sd,'ob')
+plot(gg, 'ob')
+hold off, grid on
+ylabel('singular values of \Delta, rescaled')
+xlim([0,(p-1)^2+1])
 
 subplot(2,1,2);
-plot(Sk,'xr');
+plot(Sk,'o');
 grid on
 ylabel('singular values of K')
 
 xlabel('1 \leq index \leq 4^p')
+
+xlim([0,(p-1)^2+1])
 
 %% plot singluar vectors of Delta matrix
 
@@ -98,4 +112,7 @@ for ind = 1:Drank
     title(sprintf('singular vector # %d', ind));
     set(gca,'xlim',[0,2^p],'ylim',[-1,1]*1.4);
 end
+
+
+
 

@@ -1,3 +1,8 @@
+if ~exist('Delta_fun', 'file')
+    addpath([pwd, filesep, 'SK_utils'])
+    addpath(pwd);
+end
+
 global p abar_ops aList aHashes partitions bigset
 global uniqueBarInds_sorted this_aHashes this_aBarHashes
 global quickPrimer quickBarrer MrPlus MrMinus PlaysWellTruthTable

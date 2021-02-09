@@ -1,7 +1,3 @@
-if ~exist('Delta_fun', 'file')
-    addpath([pwd, filesep, 'SK_utils'])
-end
-
 global p PlaysWellTruthTable
 
 p = 3;

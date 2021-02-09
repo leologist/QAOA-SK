@@ -1,4 +1,9 @@
-%% assumes ,./ and ../SK_utils are in MATLAB path
+%% needs to have run initialize.m so that ../ and ../SK_utils are in MATLAB path
+if ~exist('Delta_fun','file')
+    cd ..
+    initialize;
+    cd experimental
+end
 
 global p aList
 

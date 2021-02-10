@@ -131,6 +131,7 @@ J3 = reshape(J3, [dimL, Drank^3]);
 J3 = sparse(J3);
 fprintf('J3 done after %0.2f s\n', toc);
 
+
 % tic;
 % J4 = nan(dimL, Drank, Drank, Drank, Drank);
 % for ind = 1:Drank
@@ -183,9 +184,8 @@ for ind = 1:p
     % Wtau = Wtau + J4*krons(W2, W2, W2, W2)/24  + J5*krons(W2, W2, W2, W2, W2)/120;
 end
 
-% myW = Lbasis.'*W;
 myW = Wtau;
-temp = myW(2*Drank + (1:2*p));
+temp = myW(2*Drank + (1:2*p)); % extract the Ws that correspond to Ls
 approx_val = 2i*gammas*(temp(1:p).*temp(p+1:end));
 
 fprintf('Low-Rank Basis evaluation time = %0.6f s\n', toc);
@@ -200,6 +200,8 @@ return
 
 %% plotting W in Low-Rank basis
 
+set(0,'DefaultAxesFontSize', 16);
+
 W_Ls = nan(2*p, 1);
 for ind = 1:p
     W_Ls(ind) = fp(ind)'*Ws;
@@ -212,7 +214,8 @@ W_Vs = myV.'*Ws;
 figure(4);
 subplot(2,1,1);
 plot(abs(Ws),'o')
-set(gca, 'yscale','log')
+grid on
+set(gca, 'yscale','log','xlim',[0,4^p])
 ylabel('$|W_a|$','Interpreter','latex');
 xlabel('$a$ (Configuration Basis)','Interpreter','latex');
 
@@ -247,7 +250,7 @@ fprintf('||W - fun(W)|| = %0.6f\n', norm(Ws - myfun(Ws)));
 
 
 %% closer look at fixed point evolution - error various order
-temp = Dmat2.'*Ws/2;
+temp = Dmat.'*Ws/2;
 
 figure(5);
 
@@ -265,7 +268,7 @@ legend(arrayfun(@(n, err) sprintf('%d-order err = %0.2e', n, err), (0:maxorder)'
 legend('location', 'northwest')
 set(gca,'yscale','log')
 xlabel('index b')
-ylabel('W_b - f^{(i)}(W) X_b')
+ylabel('$W_b - [\hat{f}^{(k)}(W)]_b X_b$', 'Interpreter','latex','fontsize',24)
 
 %% tensor factorization: Schmidt decomposition of X_b = X_{b1, b2, ...}
 
@@ -283,7 +286,7 @@ inds = sub2ind(ones(1,2*p)*2, subs{:});
 Xtensor = nan(ones(1,2*p)*2);
 
 Xtensor(inds) = Xs;
-% Xtensor(inds) = Qs; % for low rank example, set X = Q
+Xtensor(inds) = Qs; % for low rank example, set X = Q
 
 Wtensor = Xtensor;
 Wtensor(inds) = Ws;
@@ -294,7 +297,7 @@ Wtensor(inds) = Ws;
 
 % Schmidt decomposition (SVD)
 
-k = 3;
+k = 2;
 Xsvd = svd(reshape(Xtensor, [4^k, 4^(p-k)]));
 Xsvd2 = svd(reshape(Wtensor, [4^k, 4^(p-k)]));
 

@@ -137,7 +137,7 @@ fprintf('J3 done after %0.2f s\n', toc);
 % for ind = 1:Drank
 %     for ind2 = ind:Drank
 %         for ind3 = ind2:Drank
-%             for ind4 = ind2:Drank
+%             for ind4 = ind3:Drank
 %                 temp = (myV(:,ind).*myV(:,ind2).*myV(:,ind3).*myV(:,ind4).*Lbasis)'*Xs;
 %                 for v = perms([ind,ind2, ind3, ind4]).'
 %                     J4(:, v(1), v(2), v(3), v(4)) = temp;
@@ -286,7 +286,7 @@ inds = sub2ind(ones(1,2*p)*2, subs{:});
 Xtensor = nan(ones(1,2*p)*2);
 
 Xtensor(inds) = Xs;
-Xtensor(inds) = Qs; % for low rank example, set X = Q
+% Xtensor(inds) = Qs; % for low rank example, set X = Q
 
 Wtensor = Xtensor;
 Wtensor(inds) = Ws;

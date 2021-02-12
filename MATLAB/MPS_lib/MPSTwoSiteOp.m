@@ -19,7 +19,7 @@ function [MPS, err_trunc] = MPSTwoSiteOp(MPS, Op, k, renormalize)
 %          (inherits all other struct fields beyond (G, L)of input MPS)
 %     err_trunc = the error from truncating Schmidt values
 %
-%   This function assumes d, maxD, seed are already defined globally
+%   This function assumes d, maxD are already defined globally
 %
 %   Based on Vidal (2003), arXiv:quant-ph/0301063
 %   Author: Leo Zhou
@@ -31,7 +31,7 @@ if ~(k>=1 && k < N_sites && length(MPS.L) == N_sites - 1)
     error('Invalid input MPS');
 end
 
-global d maxD seed
+global d maxD
 
 Gs = MPS.G;
 Ls = MPS.L;
@@ -227,8 +227,7 @@ MPS.L = L_out;
         try
             [U, S, V] = svdecon(tensor); %schmidt decomposition 
         catch ME
-            fprintf(2, 'SVD error: seed = %i,   site ind = %i / %i\n', seed, k, N_sites);
-            save(sprintf('SVDerror-seed=%i.mat', seed), 'Gs','Ls','Op','k');
+            fprintf(2, 'SVD error:  site ind = %i / %i\n', k, N_sites);
             rethrow(ME)
         end
     end

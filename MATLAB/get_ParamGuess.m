@@ -24,7 +24,7 @@ betas = param0(p+1:end);
 
 gammas0 = gammas;
 
-load('param_guess_from_powfit.mat', 'fitres_bet', 'fitres_bet_f', 'fitres_b1')
+load('param_guess_from_powfit.mat')
 qcutoff_g = 6;
 qcutoff_b = 5;
 for q = 1:p

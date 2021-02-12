@@ -1,11 +1,11 @@
-function [Wout, fidSq] = fmap(W_lambda, gammas, XMPS, LMPSes, p)
+function [Wout, fidSq, XMPS] = fmap(W_U, gammas, XMPS, LMPSes, p)
 %fmap implements the non-linear map f as a tensor network contraction
 %
 %   The map f is defined in the configuration basis as
-%      [f(W)]_b = exp(\sum_a W_a ?_{a,b}) X_b
+%      [f(W)]_b = exp(\sum_a W_a \Delta_{a,b}) X_b
 %
 %   Usage:
-%       [Wout, fidSq] = fmap(W_lambda, gammas, XMPS, LMPSes, p)
+%       [Wout, fidSq] = fmap(W_U, gammas, XMPS, LMPSes, p)
 %
 %       0 <= fidSq <= 1 is the estimated relative squared fidelity remaining 
 %       truncating Schmidt values
@@ -30,11 +30,11 @@ for round = 1:p
 
         if k-j == 1
             T_jk_op = Uswap  ...
-                * T_jk_pm(my_j, my_k, 1, W_lambda(j,k), gammas);
+                * T_jk_pm(my_j, my_k, 1, W_U(j,k), gammas);
         else
             T_jk_op = Uswap  ...
-                * T_jk_pm(my_j, my_k, -1, W_lambda(k,j), gammas) ...
-                * T_jk_pm(my_j, my_k, 1, W_lambda(j,k), gammas);
+                * T_jk_pm(my_j, my_k, -1, W_U(k,j), gammas) ...
+                * T_jk_pm(my_j, my_k, 1, W_U(j,k), gammas);
         end
 
         [XMPS, err] = MPSTwoSiteOp(XMPS, T_jk_op, jj, false);

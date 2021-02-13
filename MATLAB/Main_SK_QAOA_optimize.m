@@ -2,28 +2,40 @@ if ~exist('Q_fun', 'file')
     addpath([pwd, filesep, 'SK_utils'])
 end
 
-global p
+global p maxD
 
-p = 5;
-gammas0 = [0.25, 0.5, 0.5, 0.6, 0.6];
-betas0 = [0.6, 0.5, 0.4, 0.2, 0.1];
+p = 8;
 
-param0 = [gammas0, betas0];
+USE_MPS = 1;
 
+
+if p <= 12
+    param0 = SK_inf(p).param;
+else
+    gammas0 = [0.25, linspace(0.4,0.66,p-1)];
+    betas0 = linspace(0.6,0.1,p);
+    param0 = [gammas0, betas0];
+end
+
+%%
 
 fprintf('============== p = %d ===============\n', p);
 
 SAVE_FILE_NAME = sprintf('SK_QAOA_p=%d_opt.mat', p);
 
 
-
-SK_QAOA_p_objfun_helper;
-myfun = @(param) SK_QAOA_p_objfun(param(1:p), param(p+1:end));
-
+if USE_MPS
+    maxD = 4^(floor(p/2));
+    [myUs, ~, myLs] = getLowRankBasis(p);
+    myfun = @(param) SK_MPS_objfun4optim(p, param, myUs, myLs, 1);
+else
+    SK_QAOA_p_objfun_helper;
+    myfun = @(param) SK_QAOA_p_objfun(param(1:p), param(p+1:end));
+end
 
 opt_start_time = tic;
 myoptions = optimoptions('fminunc','GradObj','off','Display','iter',...
-    'TolX',1e-4,'TolFun',1e-4, 'Algorithm', 'quasi-newton', 'FiniteDifferenceType','forward',...
+    'TolX',1e-6,'TolFun',1e-6, 'Algorithm', 'quasi-newton', 'FiniteDifferenceType','central',...
     'MaxFunctionEvaluations', Inf, 'MaxIterations', Inf, 'PlotFcns',{@optimplotfval, @optimplotx});
 [param, fval, exitflag, output] = fminunc(myfun, param0, myoptions);
 

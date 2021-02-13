@@ -21,8 +21,13 @@ current_order = 1:p;
 for round = 1:p
     
     start_ind = mod(round-1,2) + 1; % alternate 1, 2, 1, 2 between rounds
-    
-    for jj = start_ind:2:p-1
+
+    leading_site_inds = start_ind:2:p-1;
+    if start_ind == 2
+        leading_site_inds = flip(leading_site_inds);
+    end
+
+    for jj = leading_site_inds
         my_j = current_order(jj);
         my_k = current_order(jj+1);
         

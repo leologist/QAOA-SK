@@ -1,4 +1,4 @@
-function [obj_approx, fidSqX, fidSqW, XMPS, MPSout] = SK_MPS_objfun(p, param)
+function [obj_approx, fidSqX, fidSqW, XMPS, MPSout] = SK_MPS_objfun(p, param, verbose)
 
 global d
 
@@ -7,6 +7,10 @@ gammas = param(1:p);
 betas = param(p+1:end);
 
 %%
+
+if nargin <= 2
+    verbose = true;
+end
 
 jk_pairs = nchoosek(1:p, 2);
 Idelete = diff(jk_pairs,[],2) == 1;
@@ -20,7 +24,7 @@ tstart = tic;
 
 [XMPS, fidSqX] = getXbprime(gammas, betas, p);
 
-fprintf('X_MPS obtained after %0.4f s\n', toc(tstart));
+logMessage('X_MPS obtained after %0.4f s\n', toc(tstart));
 
 %% get low-rank basis
 
@@ -35,7 +39,7 @@ for ind = 1:size(jk_pairs,1)
 end
 
 W0time = toc(tstart);
-fprintf('W_0 obtained after %0.4f s\n', W0time);
+logMessage('W_0 obtained after %0.4f s\n', W0time);
 
 %% applying the nonlinear map f
 fidSqW = 1;
@@ -45,14 +49,15 @@ for ind = 1:p
     diffW = norm(W_U_t(Ipairs) - Wout.');
     W_U_t(Ipairs) = Wout;
     
-    fprintf('W_{t=%d} obtained after %0.4f s, |Delta W|=%0.4e\n', ind, toc(tstart), diffW);
+    logMessage('W_{t=%d} obtained after %0.4f s, |Delta W|=%0.4e\n', ind, toc(tstart), diffW);
     if diffW < 1
         W_L = arrayfun(@(m) MPSoverlap(MPSout, m), myLs);
-        fprintf('           ------ obj approx = %0.8f\n\n', 2i*(W_L(1:p).*W_L(p+1:end))*gammas(:));
+        logMessage('       ---- obj approx = %0.8f -- Dmid=%d\n', ...
+            2i*(W_L(1:p).*W_L(p+1:end))*gammas(:), length(MPSout.L{ceil(p/2)}) );
     end
 end
 
-fprintf('-- avg fmap evaluation time = %0.4f s\n', (toc(tstart)-W0time)/p);
+logMessage('avg fmap evaluation time = %0.4f s\n', (toc(tstart)-W0time)/p);
 
 %% computing V_p
 
@@ -63,5 +68,11 @@ fidSqW = fidSqW * fidSq;
 
 obj_approx = 2i*(W_L(1:p).*W_L(p+1:end))*gammas(:);
 
-fprintf('V_p obtained after %0.4f s\n', toc(tstart));
+logMessage('V_p obtained after %0.4f s\n', toc(tstart));
 
+    function logMessage(varargin)
+        if verbose
+            fprintf(varargin{:})
+        end
+    end
+end

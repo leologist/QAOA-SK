@@ -39,7 +39,7 @@ G_out = Gs;
 L_out = Ls;
 err_trunc = 0;
 
-min_schmidt_val = 1e-6;
+min_schmidt_val = 1e-10;
 
 % optional parameters
 
@@ -195,6 +195,7 @@ else
     end
     DM = nnz(S>min_schmidt_val);
     if DM > maxD %truncate
+        fprintf(2, '::MPS2site debug:: D rank = %d exceeds maxD\n', DM)
         DM = maxD;
     end
     S_norm = norm(S);
@@ -231,17 +232,18 @@ MPS.L = L_out;
             rethrow(ME)
         end
     end
+
+    function Di = effinv(D) % make effective inverse of diagonal matrix
+        Di = diag(D);
+        inds = find(Di> min_schmidt_val);
+        if length(inds) ~= length(Di)
+            fprintf(2, 'zero schmidt values?\n');
+        end
+        Di(inds) = 1./Di(inds);
+        Di = full(diag(Di));
+    end
 end
 
-function Di = effinv(D) % make effective inverse of diagonal matrix
-    Di = diag(D);
-    inds = find(Di>1e-6);
-    if length(inds) ~= length(Di)
-        fprintf('zero schmidt values?\n');
-    end
-    Di(inds) = 1./Di(inds);
-    Di = full(diag(Di));
-end
 
 function tens_out = renorm(tensor)
     temp = norm(tensor(:));

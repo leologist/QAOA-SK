@@ -7,8 +7,7 @@ end
 
 global p aList
 
-p = 4;
-
+p = 5;
 
 load('../SK_opts.mat');
 param0 = SK_inf(p).param;
@@ -35,8 +34,8 @@ SK_QAOA_p_objfun_helper;
 
 % short hand for generating vectors of a_{j} +/- a_{-j}
 
-fp = @(ind) (aList(:, ind) + aList(:, 2*p+1-ind))/2;
-fm = @(ind) (aList(:, ind) - aList(:, 2*p+1-ind))/2;
+tp = @(ind) (aList(:, ind) + aList(:, 2*p+1-ind))/2;
+tm = @(ind) (aList(:, ind) - aList(:, 2*p+1-ind))/2;
 
 %%
 aPrime = unstar_fun(aList);
@@ -73,8 +72,8 @@ fprintf('Ws are made after %0.6f s\n', toc);
 
 Ls = nan(4^p, 2*p);
 for ind = 1:p
-    Ls(:, ind) = fp(ind);
-    Ls(:, p+ind) = fm(ind);
+    Ls(:, ind) = tp(ind);
+    Ls(:, p+ind) = tm(ind);
 end
 
 Ls = sparse(Ls);
@@ -229,48 +228,7 @@ xlabel('$\lambda$ (Low-Rank Basis)','Interpreter','latex');
 ylabel('$|\tilde{W}^\lambda|$','Interpreter','latex');
 
 
-%% obtaining W as fixed point of evolution
-
-Wt = normrnd(0, 1, 4^p, 1)/2^p;
-% Wt = Xs;
-
-%%% exact
-myfun = @(w) exp(Dmat.'*w/2) .* Xs;
-
-%%% approximate
-% myfun = @(w) Xs + (Dmat.'*w/2) .* Xs ...
-%     + (Dmat.'*w/2).^2/2 .* Xs ...
-%     + (Dmat.'*w/2).^3 / 6 .* Xs + (Dmat.'*w/2).^4 / 24 .* Xs;
-
-for ind = 1:p-1
-    Wt = myfun(Wt);
-end
-fprintf('  ||W - W_t||  = %0.6f\n', norm(Ws - Wt));
-fprintf('||W - fun(W)|| = %0.6f\n', norm(Ws - myfun(Ws)));
-
-
-%% closer look at fixed point evolution - error various order
-temp = Dmat.'*Ws/2;
-
-figure(5);
-
-maxorder = 3;
-errs = nan(maxorder+1,1);
-yy = - Ws;
-for ind = 0:maxorder
-    yy = yy + temp.^ind / factorial(ind) .*Xs;
-    plot(sort(abs(yy)),'.','markersize',10)
-    hold on
-    errs(ind+1) = norm(yy);
-end
-hold off, grid on
-legend(arrayfun(@(n, err) sprintf('%d-order err = %0.2e', n, err), (0:maxorder)', errs, 'UniformOutput',0))
-legend('location', 'northwest')
-set(gca,'yscale','log')
-xlabel('index b')
-ylabel('$W_b - [\hat{f}^{(k)}(W)]_b X_b$', 'Interpreter','latex','fontsize',24)
-
-%% tensor factorization: Schmidt decomposition of X_b = X_{b1, b2, ...}
+%% tensor factorization: Schmidt decomposition of X_{b'}= X_{b1, b2, ...}
 
 subs = cell(1,2*p);
 for ind = 1:p
@@ -284,27 +242,32 @@ inds = sub2ind(ones(1,2*p)*2, subs{:});
 %%% tensor index order:
 % [a_1, a_{-1}, a_2, a_{-2}, a_3, a_{-3}, ..., a_p, a_{-p}]
 Xtensor = nan(ones(1,2*p)*2);
-
 Xtensor(inds) = Xs;
 % Xtensor(inds) = Qs; % for low rank example, set X = Q
-
+% 
 Wtensor = Xtensor;
 Wtensor(inds) = Ws;
 
 %%% alternate reordering
+%%% S--> [1,2, ..., p, -p, ..., -2, -1]
 % Wtensor = permute(Wtensor, [2*(1:p)-1, 2*(p:-1:1)]);
-% --> [1,2, ..., p, -p, ..., -2, -1]
+
+Xtensor = permute(Xtensor, [2*p:-1:1]);
+Wtensor = permute(Wtensor, [2*p:-1:1]);
+
+% Wtensor = permute(Wtensor, randperm(2*p));
+% Xtensor = permute(Xtensor, randperm(2*p));
 
 % Schmidt decomposition (SVD)
 
-k = 2;
+k = floor(p/2);
 Xsvd = svd(reshape(Xtensor, [4^k, 4^(p-k)]));
 Xsvd2 = svd(reshape(Wtensor, [4^k, 4^(p-k)]));
 
 Xsvd(Xsvd < 1e-14) = 0; % get rid of numerical artifacts
 Xsvd2(Xsvd2 < 1e-14) = 0;
 
-figure(9);
+figure(8);
 semilogy(Xsvd,'o')
 hold on
 semilogy(Xsvd2,'x')
@@ -312,6 +275,7 @@ hold off, grid on
 xlabel('index')
 ylabel('Schmidt values')
 legend('X tensor', 'W tensor')
+% set(gca,'ylim',[1e-6,40],'xlim',[0,4^k])
 title(sprintf('Cut [1...%d], [%d..%d] -- rank <= %d', k, k+1, p, min(4^k, 4^(p-k))));
 
 

@@ -37,26 +37,31 @@ end
 %% two-bit operation
 Uswap = swap_gate(d);
 
-
 fidSq = 1;
 
 current_order = 1:p;
 for round = 1:p
     
     start_ind = mod(round-1,2) + 1; % alternate 1, 2, 1, 2 between rounds
-    
-    for jj = start_ind:2:p-1
+
+    leading_site_inds = start_ind:2:p-1;
+    if start_ind == 2
+        leading_site_inds = flip(leading_site_inds);
+    end
+
+    for jj = leading_site_inds
+
         my_j = current_order(jj);
         my_k = current_order(jj+1);
         G_jk_op = Uswap * G_jk(my_j, my_k, gammas, betas);
+
         [XMPS, err] = MPSTwoSiteOp(XMPS, G_jk_op, jj, false);
-        
+
         fidSq  = fidSq*(1-err);
 
         % swap the qudits in the recorded ordering
         current_order(jj) = my_k;
         current_order(jj+1) = my_j;
-
     end
 end
 

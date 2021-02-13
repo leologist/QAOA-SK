@@ -1,6 +1,10 @@
-function [gammas, betas] = get_ParamGuess(p, SK_inf)
+function [gammas, betas] = get_ParamGuess(p, SK_inf, p_in)
+%get_ParamGuess
 %
-p_in = 8;
+
+if nargin <= 2
+    p_in = 9;
+end
 
 interp_param = @(param, p_in, p_out) [interp1(linspace(0,1,p_in), param(1:p_in), linspace(0,1,p_out)), ...
      interp1(linspace(0,1,p_in), param(p_in+1:end), linspace(0,1,p_out))];
@@ -11,6 +15,8 @@ if nargin < 2
 end
 param0 = SK_inf(p_in).param;
 
+
+%% use iterative linear interpolation to obtain param guess at p
 for p_out = p_in+1:p
     param0 = interp_param(param0, p_out-1, p_out);
 end
@@ -21,10 +27,10 @@ gammas = param0(1:p);
 betas = param0(p+1:end);
 
 
+%% further improve guess by using power law fit results
 
 gammas0 = gammas;
-
-load('param_guess_from_powfit.mat')
+load('param_guess_from_powfit.mat');
 qcutoff_g = 6;
 qcutoff_b = 5;
 for q = 1:p

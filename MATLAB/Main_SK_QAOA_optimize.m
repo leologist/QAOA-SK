@@ -4,13 +4,16 @@ end
 
 global p maxD
 
-p = 8;
+p = 6;
 
 USE_MPS = 1;
+
+fprintf('============== p = %d ===============\n', p);
 
 if p <= 12
     load('SK_opts.mat','SK_inf');
     param0 = SK_inf(p).param;
+    fprintf('-- Using previously %s params: obj = %0.12f\n', SK_inf(p).note, SK_inf(p).fval);
 else
     gammas0 = [0.25, linspace(0.4,0.66,p-1)];
     betas0 = linspace(0.6,0.1,p);
@@ -18,11 +21,6 @@ else
 end
 
 %%
-
-fprintf('============== p = %d ===============\n', p);
-
-SAVE_FILE_NAME = sprintf('SK_QAOA_p=%d_opt.mat', p);
-
 
 if USE_MPS
     maxD = 4^(floor(p/2));
@@ -42,4 +40,6 @@ myoptions = optimoptions('fminunc','GradObj','off','Display','iter',...
 fprintf('===== Optimization Done for p=%d after %0.2f sec =========\n', p, toc(opt_start_time));
 
 %%
+
+SAVE_FILE_NAME = sprintf('SK_QAOA_p=%d_opt.mat', p);
 save(SAVE_FILE_NAME, 'param', 'fval', 'exitflag', 'output', 'param0')

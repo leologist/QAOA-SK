@@ -8,8 +8,8 @@ p = 8;
 
 USE_MPS = 1;
 
-
 if p <= 12
+    load('SK_opts.mat','SK_inf');
     param0 = SK_inf(p).param;
 else
     gammas0 = [0.25, linspace(0.4,0.66,p-1)];
